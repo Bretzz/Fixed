@@ -6,7 +6,7 @@
 /*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/01 18:02:06 by totommi           #+#    #+#             */
-/*   Updated: 2025/05/02 00:47:22 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/02 00:49:37 by totommi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,18 +19,19 @@
 
 float	Fixed::toFloat(void) const
 {
-	float	myFloat;
+	// float	myFloat;
 
-	// adding the integer part of the Fixed point number
-	myFloat = this->rawBits >> this->fractionalBits;
-	for (int i = 0; i < this->fractionalBits; i++) {
-		if ((this->rawBits >> i) & 1)
-		{
-			// adding the decimal part, stored in negative powers (2e-i)
-			myFloat += 1.0f / pow(2, ((this->fractionalBits - i)));
-		}
-	}
-	return (myFloat);
+	// // adding the integer part of the Fixed point number
+	// myFloat = this->rawBits >> this->fractionalBits;
+	// for (int i = 0; i < this->fractionalBits; i++) {
+	// 	if ((this->rawBits >> i) & 1)
+	// 	{
+	// 		// adding the decimal part, stored in negative powers (2e-i)
+	// 		myFloat += 1.0f / pow(2, ((this->fractionalBits - i)));
+	// 	}
+	// }
+	// return (myFloat);
+	return double(this->rawBits) / double(1 << this->fractionalBits);	//ok what?
 }
 
 /* CONSTRUCTORS & DESTRUCTORS */
