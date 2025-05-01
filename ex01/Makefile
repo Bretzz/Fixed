@@ -3,8 +3,9 @@ NAME		= Fixed
 CXXFLAGS	= -Wall -Werror -Wextra -std=c++98
 CXX			= c++
 
+HEADER		= Fixed.hpp
 SRC			= main.cpp \
-			Fixed.cpp
+			Fixed.cpp FixedFloat.cpp
 
 OBJ_DIR 	= obj/
 OBJS 		= $(addprefix $(OBJ_DIR), $(SRC:.cpp=.o))
@@ -17,7 +18,7 @@ $(OBJ_DIR):
 $(OBJ_DIR)%.o: %.cpp | $(OBJ_DIR)
 	@$(CXX) $(CXXFLAGS) -c $^ -o $@
 
-$(NAME): $(OBJS)
+$(NAME): $(HEADER) $(OBJS)
 	$(CXX) $(OBJS) -o $(NAME)
 
 clean:
@@ -25,6 +26,8 @@ clean:
 
 fclean: clean
 	rm -rf $(NAME) $(OBJ_DIR)
+
+lre: clean all
 
 re: fclean all
 

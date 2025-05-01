@@ -3,87 +3,67 @@
 /*                                                        :::      ::::::::   */
 /*   Fixed.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
+/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:44:58 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/01 00:04:08 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/05/02 00:23:01 by totommi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Fixed.hpp"
 #include <iostream>
+#include <iomanip>
+#include <sstream>
+#include <string>
 #include <math.h>
 
-//in general: number = (sign ? -1:1) * 2^(exponent) * 1.(mantissa bits)
-void	printRawFloat(void *raw_float)
+/* Returns the value of the decimal digits moved beyond the dot (.)
+Exambple '530.0010234', returns '10234' */
+static int64_t	getRawDecimals( const Fixed* fixed, int fractionalBits )
 {
-	int	raw_bits;
-	char bits[32] = { 0 };
+	const int	fixedBrick = int((1.0f / pow(2, fractionalBits)) * pow(10, fractionalBits / 2));	// taking the '39' out of the 0.0039 of the 2e-8
+	int64_t		decimals;
+	int			myRawBits;
 
-	raw_bits = *(int *)raw_float;
-	for (int i = 0; i < 32; i++) {
-		if ((raw_bits >> i) & 1)
-			bits[31 - i] = '1';
-		else
-			bits[31 - i] = '0';
+	myRawBits = fixed->getRawBits();
+	if (myRawBits < 0)
+		myRawBits = ~myRawBits + 1;
+	decimals = 0;
+	for (int i = 0; i < fractionalBits; i++) {
+		if ((myRawBits >> i) & 1)
+			decimals += fixedBrick * pow(2, i);
 	}
-	for (int i = 0; i < 32; i++) {
-		if (i == 0)
-			std::cout << "[";
-		std::cout << bits[i];
-		if (i == 0)
-			std::cout << "]";
-		if (i == 8)
-			std::cout << ".";
-	}
-	std::cout << std::endl;
-}
-
-void	printRawBits(int raw_bits)
-{
-	char bits[32] = { 0 };
-
-	for (int i = 0; i < 32; i++) {
-		if ((raw_bits >> i) & 1)
-			bits[31 - i] = '1';
-		else
-			bits[31 - i] = '0';
-	}
-	for (int i = 0; i < 32; i++) {
-		std::cout << bits[i];
-	}
-	std::cout << std::endl;
+	
+	return (decimals);
 }
 
 /* MEMBER FUNCTIONS */
 
 int	Fixed::getRawBits(void) const
 {
-	std::cout << "getRawBits member function called" << std::endl;
-	return (this->raw_bits);
+	return (this->rawBits);
 }
 
-void	Fixed::setRawBits(int const raw)
+void	Fixed::setRawBits(int32_t const raw)
 {
-	std::cout << "setRawBits member function called" << std::endl;
-	this->raw_bits = raw;
+	this->rawBits = raw;
 }
 
 int	Fixed::toInt(void) const
 {
-	return (this->raw_bits >> this->fractional_bits);
+	if (this->rawBits > 0)
+		return (this->rawBits >> this->fractionalBits);
+	else
+		return ((this->rawBits >> this->fractionalBits) + 1);
 }
 
-float	Fixed::toFloat(void) const
+/* inserts the deciamls into the ostringstream, with the dot (.) ;) */
+std::string Fixed::toString(void) const
 {
-	float	my_float;
-
-	printRawBits(this->raw_bits);
-	printRawBits((this->raw_bits >> this->fractional_bits));
-	printRawBits((this->raw_bits << (31 - this->fractional_bits)) >> (31 - this->fractional_bits));
-	std::cout << ((this->raw_bits << (31 - this->fractional_bits)) >> (31 - this->fractional_bits)) << std::endl;
-	my_float = (this->raw_bits >> this->fractional_bits) + (1.0f / ((this->raw_bits << (31 - this->fractional_bits)) >> (31 - this->fractional_bits)));
-	return (my_float);
+	std::ostringstream	out;
+    out << this->toInt() << "." << std::setw(this->fractionalBits / 2)
+		<< std::setfill('0') << getRawDecimals(this, this->fractionalBits);
+	return (out.str());
 }
 
 /* OVERLOADS */
@@ -91,23 +71,18 @@ float	Fixed::toFloat(void) const
 void	Fixed::operator=(const Fixed& other)
 {
 	std::cout << "Copy assignment operator called" << std::endl;
-	this->raw_bits = other.getRawBits();
+	this->rawBits = other.getRawBits();
 }
 
-// Teach operator<< how to print a Color
+// Teach operator<< how to print a Fixed
 // std::ostream is the type of std::cout, std::cerr, etc...
 // The return type and parameter type are references (to prevent copies from being made)
 std::ostream& operator<<(std::ostream& out, const Fixed& fixed)
 {
-    out << fixed.toFloat();		// print our color's name to whatever output stream out
-    return out;					// operator<< conventionally returns its left operand
+	out << fixed.toString();	// my representation which is much cooler ;P
+	//out << fixed.toFloat();	// boring way with trailing errors but scientifc notation and harder to break
+	return (out);				// operator<< conventionally returns its left operand
 }
-
-// std::ostream& Fixed::operator<<(std::ostream& out)
-// {
-// 	out << this->raw_bits << "." << (this->raw_bits << 8) << std::endl;
-// 	return (out);
-// }
 
 /* CONSTRUCTORS & DESTRUCTORS */
 
@@ -119,36 +94,13 @@ Fixed::Fixed(void)
 Fixed::Fixed(const Fixed &copy)
 {
 	std::cout << "Copy constructor called" << std::endl;
-	this->raw_bits = copy.getRawBits();
+	this->rawBits = copy.getRawBits();
 }
 
-Fixed::Fixed(const int raw)
+Fixed::Fixed(const int rawInt)
 {
 	std::cout << "Int constructor called" << std::endl;
-	this->raw_bits = raw << this->fractional_bits;
-}
-
-Fixed::Fixed(const float raw)
-{
-	float	my_raw;
-	std::cout << "Float constructor called" << std::endl;
-	my_raw = (raw * -1);
-	std::cout << "   raw: " << raw << std::endl;
-	std::cout << "my_raw: " << my_raw << std::endl;
-	printRawFloat((void *)&raw);
-	printRawFloat((void *)&my_raw);
-	// for (int i = 0; i < 8; i++) {
-	// 	if ((char)(raw >> 1) + )
-	// }
-	// int	i;
-
-	// i = 0;
-	// while (i < 8 && (raw * pow(2, i)) - (int)(raw * pow(2, i)) > FLOAT_EPSILON) {
-	// 	std::cout << "diff=" << (raw * pow(2, i)) - (int)(raw * pow(2, i)) << std::endl;
-	// 	i++;
-	// }
-	// std::cout << "shift found: " << i << std::endl;
-	this->raw_bits = (int)(raw) << this->fractional_bits | 128;
+	this->rawBits = rawInt << this->fractionalBits;
 }
 
 Fixed::~Fixed(void)
