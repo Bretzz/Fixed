@@ -6,7 +6,7 @@
 /*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:29:43 by totommi           #+#    #+#             */
-/*   Updated: 2025/05/02 18:55:16 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 00:43:44 by totommi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int	main(void)
 
 	std::cout << a << b << c << std::endl;
 
-	if (bsp(a, b, c, Point ( 0.1f, 0.5f )))
+	if (bsp(a, b, c, Point ( 0.148f, 1.952f )))
 		std::cout << "OK" << std::endl;
 	else
 		std::cout << "KO" << std::endl;

@@ -6,7 +6,7 @@
 /*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:44:58 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/02 18:53:42 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 00:54:46 by totommi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,15 +60,18 @@ Fixed::Fixed(const int rawInt)
  *	A bit less load on the CPU but worse precision.
 */
 /* My baby :') */
+/* DEV: store also the '0625' after the '39', I know you can do it */
 Fixed::Fixed(const float rawFloat)
 {
 	// std::cout << "Float constructor called" << std::endl;
 
+	std::cout << "! ! ! READ 'DEV' NOTES ! ! !" << std::endl;
 
 	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, this->fractionalBits / 2));
+	//std::cout << "brick is " << fixedBrick << std::endl;
 	float			myRawFloat = rawFloat;
 
-	/* normalizing negative numbers and storing the sigh for later */
+	/* normalizing negative numbers and storing the sign for later */
 	char sign = myRawFloat < 0 ? -1 : 1;
 	myRawFloat *= sign;
 	/* taking out the decimals: '1234' out oof '205.1234' */
