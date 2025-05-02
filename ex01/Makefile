@@ -5,7 +5,7 @@ CXX			= c++
 
 HEADER		= Fixed.hpp
 SRC			= main.cpp \
-			Fixed.cpp FixedFloat.cpp
+			Fixed.cpp
 
 OBJ_DIR 	= obj/
 OBJS 		= $(addprefix $(OBJ_DIR), $(SRC:.cpp=.o))

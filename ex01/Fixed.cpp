@@ -6,7 +6,7 @@
 /*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:44:58 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/02 00:23:01 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/02 12:12:36 by totommi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,6 @@ static int64_t	getRawDecimals( const Fixed* fixed, int fractionalBits )
 		if ((myRawBits >> i) & 1)
 			decimals += fixedBrick * pow(2, i);
 	}
-	
 	return (decimals);
 }
 
@@ -57,12 +56,20 @@ int	Fixed::toInt(void) const
 		return ((this->rawBits >> this->fractionalBits) + 1);
 }
 
+float	Fixed::toFloat(void) const
+{
+	return (double(this->rawBits) / double(1 << this->fractionalBits));	//ok, makes sense
+}
+
 /* inserts the deciamls into the ostringstream, with the dot (.) ;) */
 std::string Fixed::toString(void) const
 {
 	std::ostringstream	out;
-    out << this->toInt() << "." << std::setw(this->fractionalBits / 2)
-		<< std::setfill('0') << getRawDecimals(this, this->fractionalBits);
+	const int64_t		rawDecimals = getRawDecimals(this, this->fractionalBits);
+    out << this->toInt();
+	if (rawDecimals != 0)
+		out << "." << std::setw(this->fractionalBits / 2)
+			<< std::setfill('0') << rawDecimals;
 	return (out.str());
 }
 
@@ -101,6 +108,12 @@ Fixed::Fixed(const int rawInt)
 {
 	std::cout << "Int constructor called" << std::endl;
 	this->rawBits = rawInt << this->fractionalBits;
+}
+
+Fixed::Fixed(const float rawFloat)
+{
+	std::cout << "Float constructor called" << std::endl;
+	this->rawBits = int32_t(rawFloat * double(1 << this->fractionalBits) + (rawFloat >= 0 ? 0.5 : -0.5));	//what is this sorcery?
 }
 
 Fixed::~Fixed(void)

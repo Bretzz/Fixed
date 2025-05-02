@@ -6,7 +6,7 @@
 /*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/01 18:02:06 by totommi           #+#    #+#             */
-/*   Updated: 2025/05/02 00:49:37 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/02 11:46:08 by totommi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,8 @@ float	Fixed::toFloat(void) const
 	// 	}
 	// }
 	// return (myFloat);
-	return double(this->rawBits) / double(1 << this->fractionalBits);	//ok what?
+	// std::cout << "what is this? " << double(1 << this->fractionalBits) << std::endl;
+	return double(this->rawBits) / double(1 << this->fractionalBits);	//ok, makes sense
 }
 
 /* CONSTRUCTORS & DESTRUCTORS */
@@ -71,6 +72,6 @@ Fixed::Fixed(const float rawFloat)
 	// 	this->rawBits += 1;
 	// /* signing the bits with integer arithmetic */
 	// this->rawBits *= sign;
-	this->rawBits = int32_t(rawFloat * double(1 << this->fractionalBits) + (rawBits >= 0 ? 0.5 : -0.5));	//what is this sorcery?
+	this->rawBits = int32_t(rawFloat * double(1 << this->fractionalBits) + (rawFloat >= 0 ? 0.5 : -0.5));	//what is this sorcery?
 }
 //-42.419996128968 -42.419996128968
