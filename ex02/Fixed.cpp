@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:44:58 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/03 15:02:42 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/05/03 19:31:45 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,7 @@ Fixed::Fixed(const float rawFloat)
 	if (decimals > (fixedBrick / 2))	// im the goat
 		this->rawBits += 1;
 	/* signing the bits with integer arithmetic */
-	if (decimals == 0 && sign < 0)
-		this->rawBits = ~this->rawBits + 1 - (1 << this->fractionalBits);
-	else
-		this->rawBits *= sign;
+	this->rawBits *= sign;
 }
 
 Fixed::~Fixed(void) { /* Nothing to see here */}
@@ -115,8 +112,10 @@ int	Fixed::toInt(void) const
 {
 	if (this->rawBits >= 0)
 		return (this->rawBits >> this->fractionalBits);
-	else
+	else if (this->rawBits << (32 - this->fractionalBits) != 0)
 		return ((this->rawBits >> this->fractionalBits) + 1);
+	else
+		return (this->rawBits >> this->fractionalBits);
 }
 
 float	Fixed::toFloat(void) const
@@ -129,6 +128,10 @@ std::string Fixed::toString(void) const
 {
 	std::ostringstream	out;
 	const int64_t		rawDecimals = getRawDecimals(this, this->fractionalBits);
+	if (~(this->rawBits >> this->fractionalBits)
+		&& !(~this->rawBits >> this->fractionalBits)
+		&& this->rawBits < 0)
+		out << "-";
     out << this->toInt();
 	if (rawDecimals != 0)
 		out << "." << std::setw(this->fractionalBits / 2)

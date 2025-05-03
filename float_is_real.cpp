@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   float_is_real.cpp                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/01 00:39:46 by totommi           #+#    #+#             */
-/*   Updated: 2025/05/01 01:49:53 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 16:01:40 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <string.h>
 #include <math.h>
 
-void	printRawFloat(void *raw_float)
+static void	printRawFloat(void *raw_float)
 {
 	int	raw_bits;
 	char bits[32] = { 0 };
@@ -38,7 +38,7 @@ void	printRawFloat(void *raw_float)
 	std::cout << std::endl;
 }
 
-void	printRawBits(int raw_bits, size_t n)
+static void	printRawBits(int raw_bits, size_t n)
 {
 	char bits[n];
 
@@ -52,7 +52,7 @@ void	printRawBits(int raw_bits, size_t n)
 	for (int i = 0; i < n; i++) {
 		std::cout << bits[i];
 	}
-	std::cout << std::endl;
+	//std::cout << std::endl;
 }
 
 static char getExp(void *raw_float)
@@ -67,7 +67,7 @@ static int getMantissa(void *raw_float)
 
 static float mantissaToFloat(int mantissa)
 {
-	mantissa >>= 9;
+	//mantissa >>= 9;
 	// for (int i = 0; i < 23; i++) {
 	// 	if ((mantissa >> i) & 1)
 	// 		std::cout << "1";
@@ -90,17 +90,20 @@ static float mantissaToFloat(int mantissa)
 
 int	main(void)
 {
-	float	raw = 573.123f;
-	unsigned char	exp;
-	int		mantissa;
+	const float		raw = 0.123f;
+	char			exp;
+	int				mantissa;
 
-	printRawFloat((void *)&raw);
-	exp = getExp((void *)&raw) - 127;
-	printRawBits((int)exp, sizeof(char) * 8);
-	mantissa = getMantissa((void *)&raw);
-	printRawBits((int)mantissa, sizeof(int) * 8);
-	std::cout << "exp=" << (int)exp << ", mantissa=" << mantissaToFloat(mantissa) << std::endl;
-	float my_float = pow(2, exp) * mantissaToFloat(mantissa);
-	std::cout << "my_float=" << my_float << std::endl;
+	std::cout << "raw float: "; printRawFloat((void *)&raw);
+	exp = getExp((void *)&raw);
+	std::cout << "exp      : "; printRawBits((int)exp, 32); std::cout << " = " << (unsigned int)exp << std::endl;
+	mantissa = getMantissa((void *)&raw) >> 9;
+	//printRawBits((int)(mantissa), 32); std::cout << std::endl;
+	bzero((char *)(&mantissa) + 3, 1); mantissa -= pow(2, 23);
+	//printRawBits((int)(mantissa), 32); std::cout << std::endl;
+	std::cout << "mantissa : "; printRawBits((int)(mantissa), 32); std::cout << " = " << (unsigned int)((mantissa)) << std::endl;
+	std::cout << "exp=" << (int)exp - 127 << ", mantissa=" << mantissaToFloat(mantissa) << std::endl;
+	float my_float = pow(2, exp - 127) * mantissaToFloat(mantissa);
+	std::cout << "my_float= 2^" << (int)exp - 127 << " * " << mantissaToFloat(mantissa) << " = " << my_float << std::endl;
 	return (0);
 }

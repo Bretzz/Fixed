@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:33:59 by totommi           #+#    #+#             */
-/*   Updated: 2025/05/03 14:32:44 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/05/03 17:56:05 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,15 +95,18 @@ static Fixed	greaterEvil(Fixed *newLims, int *gotcha)
 }
 
 /* Is the point still inside the area delimited by 'xLim' and 'yLim'?
-And does the said area still contain a portion of the 'abc' triangle? */
-static bool stillInside(Fixed *xLim, Fixed *yLim,
+And does the said area still contain a portion of the 'abc' triangle?
+Or is said area fully contained in the triangle?
+RETURNS: 1: keep cycling, 0, strike out, -1 we did it! */
+static int stillInside(Fixed *xLim, Fixed *yLim,
 	Point const& a, Point const& b, Point const& c, Point const point)
 {
 	Fixed	newLims[6];
 	Fixed	reaLims[2];
 	int		gotcha[6] = { 0 };
 
-	// point inside limits?
+	(void)point;
+	//point inside limits?
 	if ((Fixed::max(xLim[1], point.getX()) == point.getX() && xLim[1] != point.getX())
 		|| (Fixed::min(xLim[0], point.getX()) == point.getX() && xLim[0] != point.getX()))
 		return (false);
@@ -145,12 +148,14 @@ static bool stillInside(Fixed *xLim, Fixed *yLim,
 	reaLims[0] = lesserEvil(newLims, gotcha);
 	reaLims[1] = greaterEvil(newLims, gotcha);
 	//std::cout << "Forced Lims: [" << reaLims[0] << "," << reaLims[1] << "] against yLim[" << yLim[0] << "," << yLim[1] << "]" << std::endl;
-	if ((reaLims[0] >= yLim[0] && reaLims[0] <= yLim[1])
+	if (yLim[0] > reaLims[0] && yLim[1] < reaLims[1])
+		return (-1);
+	else if ((reaLims[0] >= yLim[0] && reaLims[0] <= yLim[1])
 		|| (reaLims[0] <= yLim[0] && reaLims[1] >= yLim[0])
 		|| (reaLims[1] >= yLim[0] && reaLims[1] <= yLim[1])
 		|| (reaLims[1] >= yLim[1] && reaLims[0] <= yLim[1]))
-		return (true);
-	return (false);
+		return (1);
+	return (0);
 }
 
 /* getting the Lims smaller, smaller and smaller....  */
@@ -158,9 +163,18 @@ static bool	recursiveShrink(Fixed *xLim, Fixed *yLim,
 	Point const a, Point const b, Point const c, Point const point,
 	int cycle)
 {
-	bool srk;
-	if (!stillInside(xLim, yLim, a, b, c, point))
+	bool	srk;
+	int		inside = stillInside(xLim, yLim, a, b, c, point);
+
+	switch (inside) {
+	case -1:
+		return (true);
+		break;
+	case 0:
 		return (false);
+	default:
+		break;
+	}
 	(cycle % 2) ? srk = shrink(xLim, point.getX()) : srk = shrink(yLim, point.getY());
 	return (srk ? true : recursiveShrink(xLim, yLim, a, b, c, point, ++cycle));
 }

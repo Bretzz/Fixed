@@ -1,6 +1,8 @@
 
 #include "Fixed.hpp"
 
+/* Later replaced 'this->fractionalBits / 2'
+with an arbitrary value of significant decimal digits wanted. */
 Fixed::Fixed(const float rawFloat)
 {
 	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, this->fractionalBits / 2));
