@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:39:47 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/03 14:38:09 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/05/03 21:49:44 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include <string>
 # include <math.h>
 
-# define DIGITS 8 /* how deep in the float you wanna go to get decimals. */
+# define DECIMALS 8 /* how deep in the float you wanna go to get decimals. */
 /* Example: fractionalBits is set to 8, the smallest rapresentable number is 2e-8, eg. 0.00390625.
 You could settle with 0.0039, or you could take the whole 0.00390625, the calculation will get
 a bit slower (dunno how to measure it... but itsn't much) while interacting

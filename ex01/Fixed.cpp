@@ -6,7 +6,7 @@
 /*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:44:58 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/03 19:32:16 by topiana-         ###   ########.fr       */
+/*   Updated: 2025/05/03 21:49:39 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@
 Exambple '530.0010234', returns '10234' */
 static int64_t	getRawDecimals( const Fixed* fixed, int fractionalBits )
 {
-	const int	fixedBrick = int((1.0f / pow(2, fractionalBits)) * pow(10, fractionalBits / 2));	// taking the '39' out of the 0.0039 of the 2e-8
+	const int	fixedBrick = int((1.0f / pow(2, fractionalBits)) * pow(10, DECIMALS));	// taking the '39' out of the 0.0039 of the 2e-8
 	int64_t		decimals;
 	int			myRawBits;
 
@@ -68,13 +68,11 @@ std::string Fixed::toString(void) const
 {
 	std::ostringstream	out;
 	const int64_t		rawDecimals = getRawDecimals(this, this->fractionalBits);
-	if (~(this->rawBits >> this->fractionalBits)
-		&& !(~this->rawBits >> this->fractionalBits)
-		&& this->rawBits < 0)
+	if (this->toInt() == 0 && this->rawBits < 0)
 		out << "-";
     out << this->toInt();
 	if (rawDecimals != 0)
-		out << "." << std::setw(this->fractionalBits / 2)
+		out << "." << std::setw(DECIMALS)
 			<< std::setfill('0') << rawDecimals;
 	return (out.str());
 }
@@ -126,14 +124,14 @@ Fixed::Fixed(const float rawFloat)
 {
 	// std::cout << "Float constructor called" << std::endl;
 
-	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, DIGITS/* this->fractionalBits / 2 */));
+	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, DECIMALS/* this->fractionalBits / 2 */));
 	float			myRawFloat = rawFloat;
 
 	/* normalizing negative numbers and storing the sign for later */
 	char sign = myRawFloat < 0 ? -1 : 1;
 	myRawFloat *= sign;
 	/* taking out the decimals: '1234' out oof '205.1234' */
-	int64_t	decimals = (myRawFloat - (int)myRawFloat) * pow(10, DIGITS/* this->fractionalBits / 2 */);
+	int64_t	decimals = (myRawFloat - (int)myRawFloat) * pow(10, DECIMALS/* this->fractionalBits / 2 */);
 	/* adding the integer part */
 	this->rawBits = (int32_t)(myRawFloat) << this->fractionalBits;
 	/*	
