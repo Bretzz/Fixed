@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   bsp.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:33:59 by totommi           #+#    #+#             */
-/*   Updated: 2025/05/03 00:35:14 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 14:32:44 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,21 +19,23 @@ static Fixed	absF(Fixed fixed)
 	return (fixed.getRawBits() > 0 ? fixed : -fixed);
 }
 
+/* halfs the range of 'Lim' and chooses the half containing 'pointCoord' */
 // using Fixed::epsilon() as limiter for precision (duh?)
 static bool shrink(Fixed *Lim, const Fixed& pointCoord)
 {
 	Fixed const	half = (Lim[0] + Lim[1]) / Fixed ( 2 );
 
-	std::cout << "shrink [" << Lim[0] << "," << Lim[1] << "] -> ";
+	//std::cout << "shrink [" << Lim[0] << "," << Lim[1] << "] -> ";
 
 	if (Fixed::max(pointCoord, half) == half)
 		Lim[1] = half;
 	else
 		Lim[0] = half;
-	std::cout << "[" << Lim[0] << "," << Lim[1] << "]" << std::endl;
+	//std::cout << "[" << Lim[0] << "," << Lim[1] << "]" << std::endl;
 	return (absF(Lim[0] - Lim[1]) <= Fixed::epsilon() ? true : false);
 }
 
+/* Check if the 'ab' segment intersect the 'x=axis' axis before finding the actual intersection */
 static bool	canIntersect(Point const& a, Point const& b, Fixed& axis)
 {
 	if (axis == a.getX() || axis == b.getX())
@@ -47,7 +49,7 @@ static bool	canIntersect(Point const& a, Point const& b, Fixed& axis)
 	return (true);
 }
 
-/* Axis = x-axis */
+/* finds the actual intersection (y-value) between the 'ab' segment and the 'x=axis' axis*/
 static Fixed segmentAxisIntersection(Point const& a, Point const& b, Fixed& axis)
 {
 	if (a.getX() == b.getX())
@@ -58,6 +60,8 @@ static Fixed segmentAxisIntersection(Point const& a, Point const& b, Fixed& axis
 	return (yInters);
 }
 
+/* Returns the smaller value found in 'newLims'
+(only counting non-zero indexes of gotcha) */
 static Fixed	lesserEvil(Fixed *newLims, int *gotcha)
 {
 	int	i;
@@ -73,6 +77,8 @@ static Fixed	lesserEvil(Fixed *newLims, int *gotcha)
 	return (lesser);
 }
 
+/* Returns the larger value found in 'newLims'
+(only counting non-zero indexes of gotcha) */
 static Fixed	greaterEvil(Fixed *newLims, int *gotcha)
 {
 	int	i;
@@ -88,6 +94,8 @@ static Fixed	greaterEvil(Fixed *newLims, int *gotcha)
 	return (greater);
 }
 
+/* Is the point still inside the area delimited by 'xLim' and 'yLim'?
+And does the said area still contain a portion of the 'abc' triangle? */
 static bool stillInside(Fixed *xLim, Fixed *yLim,
 	Point const& a, Point const& b, Point const& c, Point const point)
 {
@@ -98,45 +106,45 @@ static bool stillInside(Fixed *xLim, Fixed *yLim,
 	// point inside limits?
 	if ((Fixed::max(xLim[1], point.getX()) == point.getX() && xLim[1] != point.getX())
 		|| (Fixed::min(xLim[0], point.getX()) == point.getX() && xLim[0] != point.getX()))
-		return (std::cout << "X strike" << std::endl, false);
+		return (false);
 	if ((Fixed::max(yLim[1], point.getY()) == point.getY() && yLim[1] != point.getY())
 		|| (Fixed::min(yLim[0], point.getY()) == point.getY() && yLim[0] != point.getY()))
-		return (std::cout << "Y strike" << std::endl, false);
+		return (false);
 
 	//triangle inside limits?
 	if (canIntersect(a, b, xLim[0]) && (gotcha[0] = 1))
 	{
 		newLims[0] = segmentAxisIntersection(a, b, xLim[0]);
-		std::cout << "intersection between x=" << xLim[0] << " and " << a << "-" << b << " is " << newLims[0] << std::endl; 
+		//std::cout << "intersection between x=" << xLim[0] << " and " << a << "-" << b << " is " << newLims[0] << std::endl; 
 	}
 	if (canIntersect(a, c, xLim[0]) && (gotcha[1] = 1))
 	{
 		newLims[1] = segmentAxisIntersection(a, c, xLim[0]);
-		std::cout << "intersection between x=" << xLim[0] << " and " << a << "-" << c << " is " << newLims[1] << std::endl;
+		//std::cout << "intersection between x=" << xLim[0] << " and " << a << "-" << c << " is " << newLims[1] << std::endl;
 	}
 	if (canIntersect(b, c, xLim[0]) && (gotcha[2] = 1))
 	{
 		newLims[2] = segmentAxisIntersection(b, c, xLim[0]);
-		std::cout << "intersection between x=" << xLim[0] << " and " << b << "-" << c << " is " << newLims[2] << std::endl;
+		//std::cout << "intersection between x=" << xLim[0] << " and " << b << "-" << c << " is " << newLims[2] << std::endl;
 	}
 	if (canIntersect(a, b, xLim[1]) && (gotcha[3] = 1))
 	{
 		newLims[3] = segmentAxisIntersection(a, b, xLim[1]);
-		std::cout << "intersection between x=" << xLim[1] << " and " << a << "-" << b << " is " << newLims[3] << std::endl;
+		//std::cout << "intersection between x=" << xLim[1] << " and " << a << "-" << b << " is " << newLims[3] << std::endl;
 	}
 	if (canIntersect(a, c, xLim[1]) && (gotcha[4] = 1))
 	{
 		newLims[4] = segmentAxisIntersection(a, c, xLim[1]);
-		std::cout << "intersection between x=" << xLim[1] << " and " << a << "-" << c << " is " << newLims[4] << std::endl;
+		//std::cout << "intersection between x=" << xLim[1] << " and " << a << "-" << c << " is " << newLims[4] << std::endl;
 	}
 	if (canIntersect(b, c, xLim[1]) && (gotcha[5] = 1))
 	{
 		newLims[5] = segmentAxisIntersection(b, c, xLim[1]);
-		std::cout << "intersection between x=" << xLim[1] << " and " << b << "-" << c << " is " << newLims[5] << std::endl;
+		//std::cout << "intersection between x=" << xLim[1] << " and " << b << "-" << c << " is " << newLims[5] << std::endl;
 	}
 	reaLims[0] = lesserEvil(newLims, gotcha);
 	reaLims[1] = greaterEvil(newLims, gotcha);
-	std::cout << "Forced Lims: [" << reaLims[0] << "," << reaLims[1] << "] against yLim[" << yLim[0] << "," << yLim[1] << "]" << std::endl;
+	//std::cout << "Forced Lims: [" << reaLims[0] << "," << reaLims[1] << "] against yLim[" << yLim[0] << "," << yLim[1] << "]" << std::endl;
 	if ((reaLims[0] >= yLim[0] && reaLims[0] <= yLim[1])
 		|| (reaLims[0] <= yLim[0] && reaLims[1] >= yLim[0])
 		|| (reaLims[1] >= yLim[0] && reaLims[1] <= yLim[1])
@@ -145,6 +153,7 @@ static bool stillInside(Fixed *xLim, Fixed *yLim,
 	return (false);
 }
 
+/* getting the Lims smaller, smaller and smaller....  */
 static bool	recursiveShrink(Fixed *xLim, Fixed *yLim,
 	Point const a, Point const b, Point const c, Point const point,
 	int cycle)
@@ -156,6 +165,7 @@ static bool	recursiveShrink(Fixed *xLim, Fixed *yLim,
 	return (srk ? true : recursiveShrink(xLim, yLim, a, b, c, point, ++cycle));
 }
 
+/* Is the point on one of the lines 'ab', 'ac', or 'bc'? */
 static bool onTheLine(Point const a, Point const b, Point const point)
 {
 	if (a.getX() == b.getX())
@@ -170,7 +180,7 @@ static bool onTheLine(Point const a, Point const b, Point const point)
 
 /* exit condition: 
  *  TRUE : diff < epsilon
- *  FLASE: out oof boundaries
+ *  FLASE: out of boundaries
 */
 bool	bsp(Point const a, Point const b, Point const c, Point const point)
 {
@@ -180,23 +190,22 @@ bool	bsp(Point const a, Point const b, Point const c, Point const point)
 	if (onTheLine(a, b, point)
 		|| onTheLine(a, c, point)
 		|| onTheLine(b, c, point))
-		return (std::cout << "Line strike" << std::endl, false);
-	std::cout << "line check passed" << std::endl;
+		return (false);
 	xLim[0] = Fixed::min(Fixed::min(a.getX(), b.getX()), c.getX());
 	xLim[1] = Fixed::max(Fixed::max(a.getX(), b.getX()), c.getX());
 
 	yLim[0] = Fixed::min(Fixed::min(a.getY(), b.getY()), c.getY());
 	yLim[1] = Fixed::max(Fixed::max(a.getY(), b.getY()), c.getY());
 
-	std::cout << "xLim[" << xLim[0] << "," << xLim[1] << "]" << std::endl;
-	std::cout << "yLim[" << yLim[0] << "," << yLim[1] << "]" << std::endl;
+	// std::cout << "xLim[" << xLim[0] << "," << xLim[1] << "]" << std::endl;
+	// std::cout << "yLim[" << yLim[0] << "," << yLim[1] << "]" << std::endl;
 
 	bool res = recursiveShrink(xLim, yLim, a, b, c, point, 0);
 	
-	std::cout << "after shrink towards " << point << std::endl;
+	// std::cout << "after shrink towards " << point << std::endl;
 
-	std::cout << "xLim[" << xLim[0] << "," << xLim[1] << "]" << std::endl;
-	std::cout << "yLim[" << yLim[0] << "," << yLim[1] << "]" << std::endl;
+	// std::cout << "xLim[" << xLim[0] << "," << xLim[1] << "]" << std::endl;
+	// std::cout << "yLim[" << yLim[0] << "," << yLim[1] << "]" << std::endl;
 
 	return (res ? true : false);
 }

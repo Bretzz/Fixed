@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Point.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:31:16 by totommi           #+#    #+#             */
-/*   Updated: 2025/05/02 18:06:25 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 14:18:17 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,8 @@ class Point
 		const Fixed&	getX( void ) const;
 		const Fixed&	getY( void ) const;
 
-		int32_t	getRawX( void ) const;
-		int32_t	getRawY( void ) const;
+		__int32_t	getRawX( void ) const;
+		__int32_t	getRawY( void ) const;
 	
 		void	operator=( const Point& );
 	

@@ -3,21 +3,29 @@
 /*                                                        :::      ::::::::   */
 /*   Fixed.hpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:39:47 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/02 15:28:20 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 14:34:29 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FIXED_HPP
 # define FIXED_HPP
 
-#include <iostream>
-#include <string>
+# include <iostream>
+# include <string>
+# include <math.h>
+
+# define DIGITS 8 /* how deep in the float you wanna go to get decimals. */
+/* Example: fractionalBits is set to 8, the smallest rapresentable number is 2e-8, eg. 0.00390625.
+You could settle with 0.0039, or you could take the whole 0.00390625, the calculation will get
+a bit slower (dunno how to measure it... but itsn't much) while interacting
+with floating point numbers (constructor and operations). */
 
 /* NOTE: leave at least one bit for the integer part (pls),
 also not recommended to go beyond 16 fractional_bits  */
+/* DEV: maybe '==' more generous? */
 class Fixed
 {
 	private:

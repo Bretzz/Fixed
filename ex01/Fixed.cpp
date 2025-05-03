@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Fixed.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:44:58 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/02 13:03:47 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 14:39:15 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,10 +110,49 @@ Fixed::Fixed(const int rawInt)
 	this->rawBits = rawInt << this->fractionalBits;
 }
 
+/*
+ *	STANDARD CONVERION:
+ *	this->rawBits = int32_t(rawFloat * double(1 << this->fractionalBits) + (rawFloat >= 0 ? 0.5 : -0.5));
+ *	A bit less load on the CPU but worse precision.
+*/
+/* My baby :') */
 Fixed::Fixed(const float rawFloat)
 {
-	std::cout << "Float constructor called" << std::endl;
-	this->rawBits = int32_t(rawFloat * double(1 << this->fractionalBits) + (rawFloat >= 0 ? 0.5 : -0.5));	//what is this sorcery?
+	// std::cout << "Float constructor called" << std::endl;
+
+	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, DIGITS/* this->fractionalBits / 2 */));
+	float			myRawFloat = rawFloat;
+
+	/* normalizing negative numbers and storing the sign for later */
+	char sign = myRawFloat < 0 ? -1 : 1;
+	myRawFloat *= sign;
+	/* taking out the decimals: '1234' out oof '205.1234' */
+	int64_t	decimals = (myRawFloat - (int)myRawFloat) * pow(10, DIGITS/* this->fractionalBits / 2 */);
+	/* adding the integer part */
+	this->rawBits = (int32_t)(myRawFloat) << this->fractionalBits;
+	/*	
+	 *	For each one of the fractional bits, if it's contained in decimal
+	 *	we subtract it's represented 'value' from 'decimals' and add it to 'rawBits'
+	*/
+	for (int i = 0; i < this->fractionalBits; i++) {
+		const float	fixedFract = fixedBrick * pow(2, this->fractionalBits - (i + 1));
+		if (decimals > fixedFract)
+		{
+			decimals -= fixedFract;
+			this->rawBits += pow(2, this->fractionalBits - (i + 1));
+		}
+	}
+	/*
+	 *	better rounding possible thanks to the decimals
+	 *	being stored in integers and not really small floats
+	*/
+	if (decimals > (fixedBrick / 2))	// im the goat
+		this->rawBits += 1;
+	/* signing the bits with integer arithmetic */
+	if (decimals == 0 && sign < 0)
+		this->rawBits = ~this->rawBits + 1 - (1 << this->fractionalBits);
+	else
+		this->rawBits *= sign;
 }
 
 Fixed::~Fixed(void)

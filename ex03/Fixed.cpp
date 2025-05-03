@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Fixed.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:44:58 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/03 00:54:46 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 14:51:35 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,40 +17,20 @@
 #include <string>
 #include <math.h>
 
-void	printRawBits(int raw_bits, size_t n)
-{
-	char bits[n];
-
-	bzero(bits, n);
-	for (size_t i = 0; i < n; i++) {
-		if ((raw_bits >> i) & 1)
-			bits[(n - 1) - i] = '1';
-		else
-			bits[(n - 1) - i] = '0';
-	}
-	for (size_t i = 0; i < n; i++) {
-		std::cout << bits[i];
-	}
-	std::cout << std::endl;
-}
-
 /* CONSTRUCTORS & DESTRUCTORS */
 
 Fixed::Fixed(void)
 {
-	// std::cout << "Default constructor called" << std::endl;
 	this->rawBits = 0;
 }
 
 Fixed::Fixed(const Fixed &copy)
 {
-	// std::cout << "Copy constructor called" << std::endl;
 	this->rawBits = copy.getRawBits();
 }
 
 Fixed::Fixed(const int rawInt)
 {
-	// std::cout << "Int constructor called" << std::endl;
 	this->rawBits = rawInt << this->fractionalBits;
 }
 
@@ -60,22 +40,16 @@ Fixed::Fixed(const int rawInt)
  *	A bit less load on the CPU but worse precision.
 */
 /* My baby :') */
-/* DEV: store also the '0625' after the '39', I know you can do it */
 Fixed::Fixed(const float rawFloat)
 {
-	// std::cout << "Float constructor called" << std::endl;
-
-	std::cout << "! ! ! READ 'DEV' NOTES ! ! !" << std::endl;
-
-	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, this->fractionalBits / 2));
-	//std::cout << "brick is " << fixedBrick << std::endl;
+	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, DIGITS/* this->fractionalBits / 2 */));
 	float			myRawFloat = rawFloat;
 
 	/* normalizing negative numbers and storing the sign for later */
 	char sign = myRawFloat < 0 ? -1 : 1;
 	myRawFloat *= sign;
 	/* taking out the decimals: '1234' out oof '205.1234' */
-	int64_t	decimals = (myRawFloat - (int)myRawFloat) * pow(10, this->fractionalBits / 2);
+	int64_t	decimals = (myRawFloat - (int)myRawFloat) * pow(10, DIGITS/* this->fractionalBits / 2 */);
 	/* adding the integer part */
 	this->rawBits = (int32_t)(myRawFloat) << this->fractionalBits;
 	/*	
@@ -103,10 +77,7 @@ Fixed::Fixed(const float rawFloat)
 		this->rawBits *= sign;
 }
 
-Fixed::~Fixed(void)
-{
-	// std::cout << "Destructor called" << std::endl;
-}
+Fixed::~Fixed(void) { /* Nothing to see here */}
 
 /* Returns the value of the decimal digits moved beyond the dot (.)
 Exambple '530.0010234', returns '10234' */

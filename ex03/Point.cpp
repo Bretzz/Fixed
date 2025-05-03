@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Point.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/02 15:35:02 by totommi           #+#    #+#             */
-/*   Updated: 2025/05/02 18:06:02 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 14:31:42 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,12 +47,12 @@ const Fixed&	Point::getY( void ) const
 	return(this->y);
 }
 
-int32_t	Point::getRawX(void) const
+__int32_t	Point::getRawX(void) const
 {
 	return (this->x.getRawBits());
 }
 
-int32_t	Point::getRawY(void) const
+__int32_t	Point::getRawY(void) const
 {
 	return (this->y.getRawBits());
 }
@@ -62,7 +62,7 @@ int32_t	Point::getRawY(void) const
 void	Point::operator=(const Point& other)
 {
 	(void)other;
-	std::cerr << "This class can’t be reassigned once constructed." << std::endl;
+	std::cerr << "This class can't be reassigned once constructed." << std::endl;
 	// this->x.setRawBits(other.getRawX());
 	// this->y.setRawBits(other.getRawY());
 }

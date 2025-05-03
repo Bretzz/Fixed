@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   Fixed.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: totommi <totommi@student.42.fr>            +#+  +:+       +#+        */
+/*   By: topiana- <topiana-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 21:44:58 by topiana-          #+#    #+#             */
-/*   Updated: 2025/05/02 18:35:57 by totommi          ###   ########.fr       */
+/*   Updated: 2025/05/03 14:51:22 by topiana-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,19 +21,16 @@
 
 Fixed::Fixed(void)
 {
-	// std::cout << "Default constructor called" << std::endl;
 	this->rawBits = 0;
 }
 
 Fixed::Fixed(const Fixed &copy)
 {
-	// std::cout << "Copy constructor called" << std::endl;
 	this->rawBits = copy.getRawBits();
 }
 
 Fixed::Fixed(const int rawInt)
 {
-	// std::cout << "Int constructor called" << std::endl;
 	this->rawBits = rawInt << this->fractionalBits;
 }
 
@@ -45,17 +42,14 @@ Fixed::Fixed(const int rawInt)
 /* My baby :') */
 Fixed::Fixed(const float rawFloat)
 {
-	// std::cout << "Float constructor called" << std::endl;
-
-
-	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, this->fractionalBits / 2));
+	const int64_t	fixedBrick = int64_t(1.0f / pow(2, this->fractionalBits) * pow(10, DIGITS/* this->fractionalBits / 2 */));
 	float			myRawFloat = rawFloat;
 
-	/* normalizing negative numbers and storing the sigh for later */
+	/* normalizing negative numbers and storing the sign for later */
 	char sign = myRawFloat < 0 ? -1 : 1;
 	myRawFloat *= sign;
 	/* taking out the decimals: '1234' out oof '205.1234' */
-	int64_t	decimals = (myRawFloat - (int)myRawFloat) * pow(10, this->fractionalBits / 2);
+	int64_t	decimals = (myRawFloat - (int)myRawFloat) * pow(10, DIGITS/* this->fractionalBits / 2 */);
 	/* adding the integer part */
 	this->rawBits = (int32_t)(myRawFloat) << this->fractionalBits;
 	/*	
@@ -77,16 +71,13 @@ Fixed::Fixed(const float rawFloat)
 	if (decimals > (fixedBrick / 2))	// im the goat
 		this->rawBits += 1;
 	/* signing the bits with integer arithmetic */
-	if (decimals == 0)
+	if (decimals == 0 && sign < 0)
 		this->rawBits = ~this->rawBits + 1 - (1 << this->fractionalBits);
 	else
 		this->rawBits *= sign;
 }
 
-Fixed::~Fixed(void)
-{
-	// std::cout << "Destructor called" << std::endl;
-}
+Fixed::~Fixed(void) { /* Nothing to see here */}
 
 /* Returns the value of the decimal digits moved beyond the dot (.)
 Exambple '530.0010234', returns '10234' */
